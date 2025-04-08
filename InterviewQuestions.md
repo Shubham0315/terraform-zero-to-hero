@@ -114,4 +114,100 @@ What is the difference between var and local?
 
 What are data sources in Terraform?
 -
--m
+- Data Sources in terraform are used to read info from existing resources outside of Terraform's direct control, so we can use them in our terraform configuration.
+- Use cases
+  - Fetching latest AMI for EC2
+  - Looking up SG IDs and VPC IDs
+  - Reading secrets from AWS secrets manager
+ 
+----------------------------------------------------------------------------------
+
+Explain the difference between terraform state, terraform show, and terraform refresh.
+-
+- Terraform state
+  - Used to interact directly with state file
+  - Lets us inspect, manipulate or modify contents of state
+  - Used for debugging scenarios
+  - e.g :- terraform state list, terraform state rm $name, terraform state mv $name
+ 
+- Terraform show
+  - Displays current state of file or saved plan
+  - Converts .tf file into readable format
+  - We can also use it to preview plan file
+  - e.g :- terraform show, terraform show terraform.tfstate
+  - We can use to review infra details
+ 
+- Terraform refresh
+  - Not used now
+  - Was used to sync state file with real infra
+
+----------------------------------------------------------------------------------
+
+How do you manage secrets or sensitive data in Terraform?
+-
+- When working with terraform, managing secrets or sensitive data (like passwords, API keys, tokens) securely is critical.
+
+- Use sensitive = true in variables
+  - Mark variables as sensitive to hide values in output/logs
+
+![image](https://github.com/user-attachments/assets/d951f729-1e60-4b12-a1b4-540f6a42bcd7)
+
+- Dont hardcode secrets in code
+  - Pass secrets via .tfvars file, env variables, secret manager
+
+ ![image](https://github.com/user-attachments/assets/bddd2a30-9340-4227-ae02-ba1807a61506)
+
+- Use env variables
+  - Set env vars with TF_VAR_ prefix before running terraform
+ 
+- Leverage secrets manager
+
+----------------------------------------------------------------------------------
+
+How do you handle remote state in Terraform?
+-
+- Remote state allows terraform to store terraform.tfstate file in shared, remote location instead of locally on our machine
+- This helps collaboration of teams, prevent conflicting updates
+
+- Why use remote state?
+  - If state file gets lost, use remote backend
+  - If multiple users overwrite state, state locking
+  - If we need history of infra changes, use state versioning
+  - If we've sensitive data in state, use remote encryption
+ 
+-----------------------------------------------------------------------------------
+
+What are Terraform modules and how are they used?
+-
+- Module in tf is a container for multiple resources that are used together
+- Use modules for reusability, cleaner code, consistency, maintenance
+
+- Types of modules
+  - Root module :- main folder where tf is run
+  - Child module :- module called from another module
+  - External module :- hosted on GitHub, tf registry
+
+- Modules are called with module block
+ 
+-----------------------------------------------------------------------------------
+
+What happens when a resource is removed from the Terraform code?
+- 
+- If we remove resource block from .tf files and run terraform apply, terraform will destroy that resource from our infra
+- Created resource will be in terraform code, terraform state file and real infra. If we delete resource block from code and do terraform apply to detroy the resource
+
+-----------------------------------------------------------------------------------
+
+How do you import existing infrastructure into Terraform?
+-
+- terraform import brings existing infra under terraforms control by writing it into state file without changing or recreating actual resource
+
+- First write resource block
+- Then run import command :- terraform import aws_s3_bucket.example my-existing-bucket
+- terraform plan
+
+- EC2 Instance :-	terraform import aws_instance.web i-0abcd1234ef567890
+- S3 Bucket :-	terraform import aws_s3_bucket.my_bucket my-existing-bucket
+- Security Group :-	terraform import aws_security_group.my_sg sg-0123456789abcdef0
+
+- It only imports state
